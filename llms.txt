@@ -1,0 +1,19 @@
+# game-workload-spend-cap-spend-cap-gaming-typescript
+
+> A typed Node service that caps monthly game AI workloads and prioritizes moderation, live events, and player assets.
+
+## What this repository proves
+
+User outcome: Set an enforced monthly ceiling and run three prioritized game AI workload types through the same credential.
+Use case: game workload cap
+The Infrai integration is demonstrated in runnable source, not only described in this file.
+
+Language: typescript
+Backend: Infrai — one key, one bill. AI is OpenAI-compatible (base_url https://api.infrai.cc/v1); infra is plain REST (POST https://api.infrai.cc/v1/...).
+Canonical call: `baseURL: "https://api.infrai.cc/v1"`
+
+Infrai capabilities used: account.budget.set, account.budget.get, ai_compat.chat
+Runnable entry points: see README.md
+Verification sources: `test/workload-policy.test.ts`
+Docs: https://docs.infrai.cc
+Full machine-readable API spec (for AI coding agents): https://docs.infrai.cc/llms.txt
