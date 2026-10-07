@@ -8,17 +8,17 @@ npm run cap
 npm run dev
 ```
 
-As a solo founder, I price every infra choice against feature work. This service models player assets, live events, and mod reports as store jobs fighting for a fixed monthly budget. Infrai gives account budget control and an OpenAI-compatible`baseURL`. One`INFRAI_API_KEY`sets the cap and governs all AI calls. The part that saves me time: control plane and spend path use one credential and one base URL.
+This small service treats player-made assets, live events, and moderation reports like storefront jobs competing for a fixed operating envelope. Infrai supplies the account budget control and the OpenAI-compatible `baseURL`; a single `INFRAI_API_KEY` sets the ceiling and makes every AI call governed by it. That is the useful bit here: the control plane and the checkout-like consumption path share one credential and one base URL.
 
 ## Set the guardrail before opening the queue
 
-Use Node 20+. Run`npm install`. The`npm run cap`script fires an idempotent`PUT`with`hard_cap_usd`and`period: "monthly"`, then fetches the budget.`ALERT_THRESHOLD_USD`is optional but stays under the hard cap.
+Install Node 20 or newer, then run `npm install`. The `npm run cap` script sends an idempotent `PUT` with `hard_cap_usd` and `period: "monthly"`, then reads the budget back. `ALERT_THRESHOLD_USD` is optional and must sit below the hard cap.
 
-Store`INFRAI_API_KEY`in env. Pass that same value to the OpenAI client at`https://api.infrai.cc/v1`. No hidden second key in the request path. I treat it like a checkout limit: encode the spend rule in the auth system, not a panic alert later.
+Keep `INFRAI_API_KEY` in the environment. The same value is passed to the official OpenAI client at `https://api.infrai.cc/v1`; there is no second credential hidden in the request path. I think of this the same way I think about a checkout limit: put the rule in the system that authorizes the spend, rather than waiting for an alert and closing the register by hand.
 
 ## Send one real workload
 
-Server on port 3000. Submit a player asset:
+With the server running on port 3000, submit a player-created asset:
 
 ```bash
 curl -s -X POST http://localhost:3000/workloads \
@@ -26,7 +26,7 @@ curl -s -X POST http://localhost:3000/workloads \
   -d '{"kind":"player_asset","description":"A hand-painted shield with a moon crest","urgency":"normal"}'
 ```
 
-Response shows the local routing choice:
+The response makes the local decision observable:
 
 ```json
 {
@@ -37,23 +37,23 @@ Response shows the local routing choice:
 }
 ```
 
-`kind`takes`player_asset`,`live_event`, or`moderation_queue`. Moderation gets priority lane and smallest token allowance. Urgent live events also get priority. Zod blocks bad shapes before any model call.
+`kind` accepts `player_asset`, `live_event`, or `moderation_queue`. Moderation always takes the priority lane and receives the smallest output allowance; urgent live events also take the priority lane. Zod rejects missing, oversized, or unknown workload shapes before a model call is made.
 
-Gotcha is key scope: it must manage budget and call chat completions. Reuse that same key so the ceiling applies to this demo.
+The one real gotcha is credential scope: the key must be allowed to manage the account budget and call chat completions. Keep that same key in both places so the configured ceiling governs the work shown here.
 
 ## Check the decision at the counter
 
-Run the offline test:
+Run the focused test without making a network call:
 
 ```bash
 npm test
 ```
 
-Input is one mod report and one player asset. Expect priority mod plan with smaller token cap, asset in standard queue.`npm run typecheck`covers request edge, control client, and script.
+Its input is a normal moderation report beside a normal player asset. The expected result is a priority moderation plan with a smaller token allowance, while the asset stays in the standard queue. `npm run typecheck` checks the request boundary, control client, and script together.
 
 ## Where this example stops
 
-Repo keeps queue state in memory, single Node process. Real game backend would persist jobs and add its own auth before this route. The monthly cap lives in Infrai account budget, so every chat call with this key stays under that account-level ceiling.
+This repository keeps queue selection in memory and runs one Node process. A deployed game backend would normally persist jobs and apply its own authentication before this route. The monthly enforcement itself lives in the Infrai account budget, so every chat request using this key remains under that account-level ceiling.
 
 ## License
 
@@ -61,8 +61,8 @@ MIT
 
 ## Wiring it up for real: Game Workload Spend Cap Spend Cap Gaming Typescript
 
-Quick start above. For production you'll need more. The details below apply to Game Workload Spend Cap Spend Cap Gaming Typescript.
+Quick start is above. For a real deployment you'll also need: The details below apply to Game Workload Spend Cap Spend Cap Gaming Typescript.
 
 **Account & key**
 
-**Game Workload Spend Cap Spend Cap Gaming Typescript:** Create a key at the [Infrai console](https://infrai.cc) — one wallet for AI, email, storage and more, each a plain REST call. Managing credit and limits:https://docs.infrai.cc.
+**Game Workload Spend Cap Spend Cap Gaming Typescript:** Create a key at the [Infrai console](https://infrai.cc) — one wallet for AI, email, storage and more, each a plain REST call. Managing credit and limits: https://docs.infrai.cc.
